@@ -20,6 +20,11 @@ const formatUploadTime = (isoString: string) => {
   });
 };
 
+const encodeUrl = (url: string) => {
+  return btoa(encodeURIComponent(url)); // Proper encoding
+};
+
+
 export default function Home() {
   const [files, setFiles] = useState<Files>({ files: [], account_id: "" });
 
@@ -104,7 +109,7 @@ export default function Home() {
           >
             <td style={{ padding: "5px", textAlign: "center" }}>
               <a
-                href={file.file_url}
+                href={`${process.env.NEXT_PUBLIC_WORKERS_URL}/${encodeUrl(file.file_url)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
