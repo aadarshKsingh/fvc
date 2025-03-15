@@ -4,7 +4,7 @@ import { File, Files } from "@/types/file";
 import { motion } from "framer-motion";
 import { Inter } from 'next/font/google';
 import { Moon, Search, Sun } from 'lucide-react';
-import "../styles/globals.css";
+
 
 const inter = Inter({
   subsets: ["latin"],
