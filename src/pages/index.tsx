@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import { File, Files } from "@/types/file";
 import { motion } from "framer-motion";
-import { VT323 } from "next/font/google";
+import { Inter } from 'next/font/google';
+import { Moon, Search, Sun } from 'lucide-react';
+import "../styles/globals.css";
 
-
-const vt323 = VT323({
+const inter = Inter({
   subsets: ["latin"],
-  weight: "400",
   display: "swap",
 });
 
@@ -21,15 +21,18 @@ const formatUploadTime = (isoString: string) => {
 };
 
 const encodeUrl = (url: string) => {
-  return btoa(encodeURIComponent(url)); // Proper encoding
+  return btoa(encodeURIComponent(url));
 };
-
 
 export default function Home() {
   const [files, setFiles] = useState<Files>({ files: [], account_id: "" });
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const [darkMode, setDarkMode] = useState(true);
+
   useEffect(() => {
+    // Always start with dark mode
+    setDarkMode(true);
+
     fetch(`${process.env.NEXT_PUBLIC_GET_FILES}${process.env.NEXT_PUBLIC_ACCOUNT_ID}`)
       .then((response) => response.json())
       .then((data) => {
@@ -40,145 +43,118 @@ export default function Home() {
       });
   }, []);
 
+  useEffect(() => {
+
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const filteredFiles = files.files.filter((file) =>
     file.filename.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <motion.h1
-    className={vt323.className}
-    style={{
-      fontSize: "5rem",
-      fontWeight: "bolder",
-      color: "red",
-      textAlign: "center",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      width: "100%",
-    }}
-    initial={{ y: -50, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 1, ease: "easeOut" }}
-  >
-    FVC Index
-    <div className="flex justify-center w-full mt-5">
-        <input
-          type="text"
-          placeholder="Search files..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            width: "50%",
-            padding: "10px 15px",
-            fontSize: "1.2rem",
-            border: "1px solid gray",
-            borderRadius: "5px",
-            backgroundColor: "#222",
-            color: "white",
-            textAlign: "center",
-            outline: "none",
-            transition: "border-color 0.3s ease-in-out",
-          }}
-          onClick={(e) => (e.currentTarget.style.borderColor = "#ff0000")}
-        />
-      </div>
-  </motion.h1>
-
-  <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    backgroundColor: "#1a1a1a",
-  }}
->
-  <div style={{ width: "80%", maxWidth: "900px" }}>
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "collapse",
-        border: "2px solid white",
-        backgroundColor: "#222",
-        color: "white",
-        marginTop: "-45vh"
-      }}
-    >
-      <thead>
-        <tr style={{ backgroundColor: "#333", borderBottom: "2px solid white" }}>
-          <th style={{ padding: "5px", border: "1px solid gray", textAlign: "center" }}>
-            Filename
-          </th>
-          <th style={{ padding: "5px", border: "1px solid gray", textAlign: "center" }}>
-            Upload Time
-          </th>
-          <th style={{ padding: "5px", border: "1px solid gray", textAlign: "center" }}>
-            File Size
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-      {filteredFiles.map((file: File, index: number) => (
-  <motion.tr
-    key={index}
-    initial={{ y: 50, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ delay: index * 0.1, duration: 0.8 }}
-    style={{
-      backgroundColor: "#1a1a1a",
-      borderBottom: "1px solid gray",
-      transition: "background 0.3s ease-in-out",
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#333")}
-    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1a1a1a")}
-  >
-    {/* Filename as clickable link */}
-    <td style={{ padding: "5px", textAlign: "center", border: "1px solid gray" }}>
-      <a
-        href={`${process.env.NEXT_PUBLIC_WORKERS_URL}/${encodeUrl(file.file_url)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          textDecoration: "none",
-          color: "#FFFFFF",
-          padding: "10px 20px",
-          display: "inline-block",
-          borderRadius: "5px",
-          transition: "color 0.3s ease-in-out",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#ffcc00")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#FFFFFF")}
+    <div className={`container ${inter.className}`}>
+      <motion.button
+        className="theme-toggle"
+        onClick={toggleDarkMode}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
       >
-        {file.filename}
-      </a>
-    </td>
+        {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </motion.button>
 
-    {/* Upload Time */}
-    <td style={{ padding: "12px", border: "1px solid gray", textAlign: "center" }}>
-      {formatUploadTime(file.upload_time)}
-    </td>
+      <motion.div
+        className="title-container"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <h1 className="title">
+          <span className="title-text">FVC</span>
+          <span className="title-accent">Index</span>
+        </h1>
+        <div className="title-underline"></div>
+      </motion.div>
 
-    {/* File Size */}
-    <td style={{ padding: "12px", border: "1px solid gray", textAlign: "center" }}>
-      {(file.file_size / 1024 / 1024).toFixed(2)} MB
-    </td>
-  </motion.tr>
-))}
+      <motion.div 
+        className="search-container"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="search-wrapper">
+          <Search className="search-icon" size={18} />
+          <input
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-bar"
+          />
+        </div>
+      </motion.div>
 
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-
-
-
-
-
-
+      <motion.div 
+        className="table-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.4 }}
+      >
+        <div className="glass-card">
+          <table className="glass-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Upload Time</th>
+                <th>File Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredFiles.length > 0 ? (
+                filteredFiles.map((file: File, index: number) => (
+                  <motion.tr
+                    key={index}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.05, duration: 0.5 }}
+                    whileHover={{ backgroundColor: "var(--hover-bg)" }}
+                  >
+                    <td>
+                      <a
+                        href={`${process.env.NEXT_PUBLIC_WORKERS_URL}/${encodeUrl(file.file_url)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="file-link"
+                      >
+                        {file.filename}
+                      </a>
+                    </td>
+                    <td>{formatUploadTime(file.upload_time)}</td>
+                    <td>{(file.file_size / 1024 / 1024).toFixed(2)} MB</td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="empty-state">
+                    {searchQuery ? "No files match your search" : "No files available"}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
     </div>
   );
 }
